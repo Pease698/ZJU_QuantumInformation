@@ -79,9 +79,25 @@ for i in range(len(Alice_bits)):
     Alice_modes.append(mode)
     Alice_prepared.append(Photon(modes[mode][Alice_bits[i]]))
 
-# Bob receives the photons, assume no environmental noise
-Bob_received = Alice_prepared.copy()
+
+# Eve receives the photons, assume no environmental noise
+Eve_received = Alice_prepared.copy()
 Alice_prepared.clear()
+
+# Eve randomly selects modes to measure the photons.
+Eve_modes = []
+Eve_bits = []
+Eve_prepared = []
+for p in Eve_received:
+    mode = mode_select()
+    Eve_modes.append(mode)
+    Eve_bits.append(p.measure(modes[mode]))
+    Eve_prepared.append(p)
+
+
+# Bob receives the photons, assume no environmental noise
+Bob_received = Eve_prepared.copy()
+Eve_prepared.clear()
 
 # Bob randomly selects modes to measure the photons.
 Bob_modes = []
@@ -95,8 +111,9 @@ for p in Bob_received:
 keys = []
 for am,bm,ab,bb in zip(Alice_modes,Bob_modes,Alice_bits,Bob_bits):
     if (am == bm): # compared modes through a classical channel
-        assert ab == bb
-        keys.append(ab)
+        # assert ab == bb
+        if ab == bb:
+            keys.append(ab)
 
 print ('Sifted keys:', len(keys))
 # 密钥太长了，暂时注释掉
